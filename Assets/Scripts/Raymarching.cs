@@ -45,7 +45,7 @@ public class Raymarching : MonoBehaviour
         float d = delta.magnitude;
         float th = Mathf.Atan(0.5f / d);
         _camera.fieldOfView = (th * Mathf.Rad2Deg) * 2f;
-        _target.transform.localScale = new Vector3(1f * _camera.aspect, 1f, 1f);
+        _target.transform.localScale = new Vector3(_camera.aspect, 1f, 1f);
         _focalLength = d;
     }
 
