@@ -36,7 +36,10 @@ public class Raymarching : MonoBehaviour
             return;
         }
         Gizmos.color = Color.white;
-        Gizmos.DrawFrustum(_cameraTrans.position, _camera.fieldOfView, _camera.farClipPlane, _camera.nearClipPlane, _camera.aspect);
+        Matrix4x4 prev = Gizmos.matrix;
+        Gizmos.matrix = _cameraTrans.localToWorldMatrix;
+        Gizmos.DrawFrustum(Vector3.zero, _camera.fieldOfView, _camera.farClipPlane, _camera.nearClipPlane, _camera.aspect);
+        Gizmos.matrix = prev;
     }
 
     private void UpdateCamera()
