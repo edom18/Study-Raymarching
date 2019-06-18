@@ -2,15 +2,15 @@
 {
     Properties
     {
+        _Color("Color", Color) = (1, 1, 1, 1)
         _FocalLength("Focal length", Float) = 1.5
         _CameraPos("Camera Pos", Vector) = (0, 0, -10, 0)
         _Target("Target", Vector) = (0, 0, 0, 0)
         _SpherePos("Sphere Pos", Vector) = (0, 0, 0, 0)
-        _MainTex ("Texture", 2D) = "white" {}
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" }
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
         LOD 100
 
         Pass
@@ -34,8 +34,7 @@
                 float4 vertex : SV_POSITION;
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+            float4 _Color;
             float4 _SpherePos;
             float4 _CameraPos;
             float4 _Target;
@@ -57,7 +56,7 @@
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = v.uv;
                 return o;
             }
 
@@ -102,9 +101,16 @@
                 float3 ro = _CameraPos.xyz;
                 // float3 ro = float3(0, 0, -5);
                 // float3 ta = float3(0, 1, 0);
+
                 float3x3 cam = camera(ro, ta);
                 float3 f = normalize(float3(uv, _FocalLength));
                 float3 ray = mul(f, cam);
+
+                // float3 up = normalize(float3(0, 1, 0));
+                // float3 cw = normalize(ta - ro);
+                // float3 cu = normalize(cross(cw, up));
+                // float3 cv = normalize(cross(cu, cw));
+                // float3 ray = normalize(cu * uv.x + cv * uv.y + cw * _FocalLength);
 
                 float3 col = float3(0, 0, 0);
 
@@ -126,7 +132,7 @@
                     col = float3(diff, diff, diff);
                 }
 
-                return float4(col, 0.5);
+                return float4(col, 1.0) * _Color;
             }
             ENDCG
         }
