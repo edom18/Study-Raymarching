@@ -39,6 +39,13 @@ public class Raymarching : MonoBehaviour
         Matrix4x4 prev = Gizmos.matrix;
         Gizmos.matrix = _cameraTrans.localToWorldMatrix;
         Gizmos.DrawFrustum(Vector3.zero, _camera.fieldOfView, _camera.farClipPlane, _camera.nearClipPlane, _camera.aspect);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(Vector3.zero, new Vector3(0, 0, _focalLength));
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(Vector3.zero, new Vector3(0,  0.5f, _focalLength));
+        Gizmos.DrawLine(Vector3.zero, new Vector3(0, -0.5f, _focalLength));
         Gizmos.matrix = prev;
     }
 
