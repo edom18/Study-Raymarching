@@ -10,11 +10,13 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Transparent" }
         LOD 100
 
         Pass
         {
+            Blend SrcAlpha OneMinusSrcAlpha
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -94,7 +96,7 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv * 2.0 - 1.0;
+                float2 uv = (i.uv * 2.0 - 1.0);
                 uv.x *= getAspectRatio();
                 float3 ta = _Target.xyz;
                 float3 ro = _CameraPos.xyz;
@@ -124,7 +126,7 @@
                     col = float3(diff, diff, diff);
                 }
 
-                return float4(col, 1.0);
+                return float4(col, 0.5);
             }
             ENDCG
         }
