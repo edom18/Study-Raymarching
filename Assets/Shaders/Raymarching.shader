@@ -4,6 +4,7 @@
     {
         _FocalLength("Focal length", Float) = 1.5
         _CameraPos("Camera Pos", Vector) = (0, 0, -10, 0)
+        _Target("Target", Vector) = (0, 0, 0, 0)
         _SpherePos("Sphere Pos", Vector) = (0, 0, 0, 0)
         _MainTex ("Texture", 2D) = "white" {}
     }
@@ -35,13 +36,18 @@
             float4 _MainTex_ST;
             float4 _SpherePos;
             float4 _CameraPos;
+            float4 _Target;
             float _FocalLength;
 
-            float3x3 camera(float3 ro, float3 ta, float3 up)
+            float3x3 camera(float3 ro, float3 ta)
             {
+                float3 up = normalize(float3(0, 1, 0));
                 float3 cw = normalize(ta - ro);
-                float3 cu = normalize(cross(cw, up));
-                float3 cv = normalize(cross(cu, cw));
+                float3 cu = normalize(cross(up, cw));
+                float3 cv = normalize(cross(cw, cu));
+                // float3 cw = normalize(ta - ro);
+                // float3 cu = normalize(cross(cw, up));
+                // float3 cv = normalize(cross(cu, cw));
                 return float3x3(cu, cv, cw);
             }
 
@@ -70,14 +76,33 @@
                 return normalize(n);
             }
 
+            /// Refer to : https://qiita.com/Santarh/items/428d2e0f33852e6f37b5
+            float getAspectRatio()
+            {
+                // 右上なので (x, y) = (1, 1)
+                // かつ近平面に存在するので z は DirectX のとき 0, OpenGL のとき -1
+                // w は nearClip の値
+                float4 projectionSpaceUpperRight = float4(1, 1, UNITY_NEAR_CLIP_VALUE, _ProjectionParams.y);
+
+                // プロジェクション行列の逆行列で変換
+                float4 viewSpaceUpperRight = mul(unity_CameraInvProjection, projectionSpaceUpperRight);
+
+                // 幅 / 高さ でアスペクト比
+                float aspect = viewSpaceUpperRight.x / viewSpaceUpperRight.y;
+                return aspect;
+            }
+
             fixed4 frag (v2f i) : SV_Target
             {
                 float2 uv = i.uv * 2.0 - 1.0;
-                float3 ta = float3(0, 0, 0);
-                float3 up = float3(0, 1, 0);
+                uv.x *= getAspectRatio();
+                float3 ta = _Target.xyz;
                 float3 ro = _CameraPos.xyz;
                 // float3 ro = float3(0, 0, -5);
-                float3 ray = mul(camera(ro, ta, up), normalize(float3(uv, _FocalLength)));
+                // float3 ta = float3(0, 1, 0);
+                float3x3 cam = camera(ro, ta);
+                float3 f = normalize(float3(uv, _FocalLength));
+                float3 ray = mul(f, cam);
 
                 float3 col = float3(0, 0, 0);
 
