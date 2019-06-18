@@ -4,9 +4,10 @@
     {
         _Color("Color", Color) = (1, 1, 1, 1)
         _FocalLength("Focal length", Float) = 1.5
+        _CameraUp("Camera Up", Vector) = (0, 1, 0, 0)
         _CameraPos("Camera Pos", Vector) = (0, 0, -10, 0)
         _Target("Target", Vector) = (0, 0, 0, 0)
-        _SpherePos("Sphere Pos", Vector) = (0, 0, 0, 0)
+        _SphereParam("Sphere Param", Vector) = (0, 0, 0, 0.5)
     }
     SubShader
     {
@@ -35,20 +36,19 @@
             };
 
             float4 _Color;
-            float4 _SpherePos;
+            float4 _SphereParam;
             float4 _CameraPos;
+            float4 _CameraUp;
             float4 _Target;
             float _FocalLength;
 
             float3x3 camera(float3 ro, float3 ta)
             {
-                float3 up = normalize(float3(0, 1, 0));
+                // float3 up = normalize(float3(0, 1, 0));
+                float3 up = _CameraUp.xyz;
                 float3 cw = normalize(ta - ro);
                 float3 cu = normalize(cross(up, cw));
                 float3 cv = normalize(cross(cw, cu));
-                // float3 cw = normalize(ta - ro);
-                // float3 cu = normalize(cross(cw, up));
-                // float3 cv = normalize(cross(cu, cw));
                 return float3x3(cu, cv, cw);
             }
 
@@ -62,7 +62,7 @@
 
             float map(float3 p)
             {
-                return length(p - _SpherePos.xyz) - 1.0;
+                return length(p - _SphereParam.xyz) - _SphereParam.w;
             }
 
             float3 normal(float3 p)
@@ -95,22 +95,14 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float2 uv = (i.uv * 2.0 - 1.0);
+                float2 uv = (i.uv * 2.0 - 1.0) * 0.5;
                 uv.x *= getAspectRatio();
+
                 float3 ta = _Target.xyz;
                 float3 ro = _CameraPos.xyz;
-                // float3 ro = float3(0, 0, -5);
-                // float3 ta = float3(0, 1, 0);
-
                 float3x3 cam = camera(ro, ta);
                 float3 f = normalize(float3(uv, _FocalLength));
                 float3 ray = mul(f, cam);
-
-                // float3 up = normalize(float3(0, 1, 0));
-                // float3 cw = normalize(ta - ro);
-                // float3 cu = normalize(cross(cw, up));
-                // float3 cv = normalize(cross(cu, cw));
-                // float3 ray = normalize(cu * uv.x + cv * uv.y + cw * _FocalLength);
 
                 float3 col = float3(0, 0, 0);
 

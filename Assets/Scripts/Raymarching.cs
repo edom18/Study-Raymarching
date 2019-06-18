@@ -52,8 +52,9 @@ public class Raymarching : MonoBehaviour
     private void UpdateMaterial()
     {
         _material.SetVector("_CameraPos", _cameraTrans.position);
+        _material.SetVector("_CameraUp", _cameraTrans.up);
         _material.SetVector("_Target", _cameraTrans.position + _cameraTrans.forward);
-        _material.SetVector("_SpherePos", _sphereTrans.position);
+        _material.SetVector("_SphereParam", new Vector4(_sphereTrans.position.x, _sphereTrans.position.y, _sphereTrans.position.z, _sphereTrans.lossyScale.x * 0.5f));
         _material.SetFloat("_FocalLength", _focalLength);
     }
 }
